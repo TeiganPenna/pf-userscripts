@@ -10,30 +10,30 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 
+/* globals jQuery, $ */
+
 (function() {
     'use strict';
+
+    // replace 'd' with '*' and eval
+    function calculate(breakdown) {
+        const equation = breakdown.replaceAll('d', '*');
+        return eval(equation);
+    }
 
     $(document).ready(() => {
         const statblock = $('#main');
         if (statblock.length) {
-            const hpRegex = /<b>hp<\/b>\s\d+\s\((\d+)d(\d+)([\+|\-])?(\d+)?\)/;
+            const hpBreakdownRegex = /<b>hp<\/b>\s\d+\s\((\d+\s+HD;\s*)?([0-9d\+\-]+)\)/;
             const statblockHtml = statblock.html();
-            const match = statblockHtml.match(hpRegex);
+            const breakdownMatch = statblockHtml.match(hpBreakdownRegex);
 
-            if (match) {
-                const [original, numHd, baseHd, operator, modifier] = match;
-
-                let maxHp = parseInt(numHd) * parseInt(baseHd);
-                if (modifier) {
-                    if (operator === '+') {
-                        maxHp += parseInt(modifier);
-                    } else if (operator === '-') {
-                        maxHp -= parseInt(modifier);
-                    }
-                }
+            if (breakdownMatch) {
+                const [original, _, breakdown] = breakdownMatch;
+                const maxHp = calculate(breakdown);
 
                 const modifiedHpLine = original + ' (<b>max</b> ' + maxHp + ')';
-                const modifiedStatblockHtml = statblockHtml.replace(hpRegex, modifiedHpLine);
+                const modifiedStatblockHtml = statblockHtml.replace(hpBreakdownRegex, modifiedHpLine);
                 statblock.html(modifiedStatblockHtml);
             }
         }
