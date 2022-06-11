@@ -16,7 +16,7 @@
     $(document).ready(() => {
         const statblock = $('.article-content');
         if (statblock.length) {
-            const hpRegex = /<b>hp<\/b>\s\d+\s\((\d+)d(\d+)([\+|\-])(\d+)\)/;
+            const hpRegex = /<b>hp<\/b>\s\d+\s\((\d+)d(\d+)([\+|\-])?(\d+)?\)/;
             const statblockHtml = statblock.html();
             const match = statblockHtml.match(hpRegex);
 
@@ -24,10 +24,12 @@
                 const [original, numHd, baseHd, operator, modifier] = match;
 
                 let maxHp = parseInt(numHd) * parseInt(baseHd);
-                if (operator === '+') {
-                    maxHp += parseInt(modifier);
-                } else {
-                    maxHp -= parseInt(modifier);
+                if (modifier) {
+                    if (operator === '+') {
+                        maxHp += parseInt(modifier);
+                    } else if (operator === '-') {
+                        maxHp -= parseInt(modifier);
+                    }
                 }
 
                 const modifiedHpLine = original + ' (<b>max</b> ' + maxHp + ')';
